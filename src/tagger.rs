@@ -1,3 +1,5 @@
+use regex::Regex;
+
 pub struct TextTagger {
     input_text: String,
     output_text: String,
@@ -12,6 +14,8 @@ impl TextTagger {
     }
 
     pub fn tag(&mut self) {
+        let html_regex = Regex::new(r"^<\w+( .*)*>.*<\/\w+>$").unwrap();
+
         self.input_text.split("\n").for_each(|line| {
             let trimmed = line.trim();
 
@@ -19,10 +23,15 @@ impl TextTagger {
                 return;
             }
 
-            self.output_text.push_str("<p>");
-            self.output_text.push_str(trimmed);
-            self.output_text.push_str("</p>");
-            self.output_text.push_str("\n\n");
+            if html_regex.is_match(trimmed) {
+                self.output_text.push_str(trimmed);
+                self.output_text.push_str("\n\n");
+            } else {
+                self.output_text.push_str("<p>");
+                self.output_text.push_str(trimmed);
+                self.output_text.push_str("</p>");
+                self.output_text.push_str("\n\n");
+            }
         })
     }
 
@@ -47,6 +56,16 @@ mod tests {
         let mut tagger = TextTagger::new("\n\nuva\n\nbanana\n\n");
         tagger.tag();
         assert_eq!("<p>uva</p>\n\n<p>banana</p>\n\n", tagger.get_output_text());
+    }
+
+    #[test]
+    fn test_ignore_html_tags() {
+        let mut tagger = TextTagger::new("<p>banana</p>\nuva\nmaçã\n<h1>laranja</h1>\npera");
+        tagger.tag();
+        assert_eq!(
+            "<p>banana</p>\n\n<p>uva</p>\n\n<p>maçã</p>\n\n<h1>laranja</h1>\n\n<p>pera</p>\n\n",
+            tagger.get_output_text()
+        );
     }
 
     #[test]
