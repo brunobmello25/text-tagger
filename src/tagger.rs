@@ -22,7 +22,7 @@ impl TextTagger {
             self.output_text.push_str("<p>");
             self.output_text.push_str(trimmed);
             self.output_text.push_str("</p>");
-            self.output_text.push_str("\n");
+            self.output_text.push_str("\n\n");
         })
     }
 
@@ -39,20 +39,20 @@ mod tests {
     fn test_tag() {
         let mut tagger = TextTagger::new("banana");
         tagger.tag();
-        assert_eq!(tagger.get_output_text(), "<p>banana</p>\n");
+        assert_eq!(tagger.get_output_text(), "<p>banana</p>\n\n");
     }
 
     #[test]
     fn test_tag_multiple_lines() {
         let mut tagger = TextTagger::new("\n\nuva\n\nbanana\n\n");
         tagger.tag();
-        assert_eq!("<p>uva</p>\n<p>banana</p>\n", tagger.get_output_text());
+        assert_eq!("<p>uva</p>\n\n<p>banana</p>\n\n", tagger.get_output_text());
     }
 
     #[test]
     fn test_output() {
         let mut tagger = TextTagger::new("banana");
         tagger.tag();
-        assert_eq!(tagger.get_output_text(), "<p>banana</p>\n");
+        assert_eq!(tagger.get_output_text(), "<p>banana</p>\n\n");
     }
 }
